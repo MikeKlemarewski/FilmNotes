@@ -1,0 +1,17 @@
+Roll
+-----
+{
+    "title": "string",
+    "film": "TRI-X 400",
+    "camera": "Nikon FE",
+    "date-started": "2014-12-22",
+    "date-finished": "",
+    "exposure-count": "36",
+    "exposures": [
+        {
+            "lens": "Nikon 28mm f2.4 AI-s",
+            "aperture": "8",
+            "shutter-speed": "1/30"
+        }
+    ]
+}

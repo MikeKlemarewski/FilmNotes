@@ -1,0 +1,63 @@
+<ion-view view-title="Capture">
+    <ion-content>
+        <form name="form" class="simple-form" novalidate>
+            <div class="list">
+
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Lens
+                    </div>
+                    <select ng-model="exposure.lens"
+                            ng-options="k as k for (k, v) in lenses">
+                    </select>
+                </label>
+
+                <!-- Aperture -->
+                <div class="item">
+                    <h2 class="title">Aperture</h2>
+                </div>
+                <div class="item item-input-inset">
+                    <div class="range">
+                        <input type="range"
+                               min="0"
+                               max="{{ getApertures().length - 1 }}"
+                               step="1"
+                               ng-model="aperture.index"
+                               ng-change="setAperture(aperture.index)"/>
+                    </div>
+                    <h1>
+                        {{ getApertureAtIndex(aperture.index) }}
+                    </h1>
+                </div>
+
+                <!-- Shutter Speed -->
+                <div class="item">
+                    <h2 class="title">Shutter Speed</h2>
+                </div>
+                <div class="item item-input-inset">
+                    <div class="range">
+                        <input type="range"
+                               min="0"
+                               max="{{ getShutterSpeeds().length - 1 }}"
+                               step="1"
+                               ng-model="shutter.index"
+                               ng-change="setShutterSpeed(shutter.index)"/>
+                    </div>
+                    <h1>
+                        {{ getShutterSpeedAtIndex(shutter.index) }}
+                    </h1>
+                </div>
+            </div>
+
+            <div class="padding">
+                <button class="button button-block activated"
+                         ng-click="capture(exposure)">
+                    Capture!
+                </button>
+            </div>
+        </form>
+
+        <pre>exposure = {{exposure | json}}</pre>
+        <pre>exposures = {{exposures | json}}</pre>
+    </ion-content>
+</ion-view>
