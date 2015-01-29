@@ -1,1 +1,9 @@
 /* Empty. Add your own CSS if you like */
+.list h1.slider-display {
+    margin-bottom:20px;
+}
+
+i.slider-icon {
+    font-size: 40px;
+    margin-left: 10px;
+}

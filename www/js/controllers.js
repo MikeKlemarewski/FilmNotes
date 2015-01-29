@@ -4,52 +4,35 @@ angular.module('starter.controllers', [])
     $scope.goToCapturePage = function() {
         window.location.href += 'capture';
     };
+
+    $scope.goToCurrentRollPage = function() {
+        window.location.href += 'current-roll';
+    };
 })
 
-.controller('Exposures', function($scope) {
-    $scope.camera = {
-        "name": "Nikon FE",
-        "shutter-speeds": [
-            "B", "m90", "8", "4", "2", "1",
-            "1/2", "1/4", "1/8", "1/15", "1/30",
-            "1/60", "1/125", "1/250", "1/250",
-            "1/500", "1/1000", "Auto"
-        ]
-    };
-    $scope.exposure = {};
-    $scope.exposures = [];
+.controller('CurrentRoll', function($scope, Gear, Roll) {
+    $scope.camera = Gear.getCamera();
+    $scope.exposures = Roll.getExposures();
+    $scope.film = Roll.getFilm();
+    debugger;
+})
+
+.controller('Exposures', function($scope, Gear, Roll) {
+    $scope.camera = Gear.getCamera();
+    $scope.lenses = Gear.getLenses();
+    $scope.capture = Roll.captureExposure;
+    $scope.exposure = Roll.getCurrentExposure();
+    $scope.exposures = Roll.getExposures();
+
     $scope.aperture = { index: 0 };
     $scope.shutter = { index: 0 };
 
-    $scope.lenses = {
-        "nikon-28mm-2.8": {
-            "name": "nikon-28mm-2.8",
-            apertures: [2.8, 5.6, 8, 16, 22]
-        },
-        "nikon-50mm-1.4": {
-            "name": "nikon-50mm-1.4",
-            apertures: [1.4, 2, 2.8, 4, 5.6, 8, 11, 16]
-        },
-        "nikon-105mm-2.5": {
-            "name": "nikon-105mm-2.5",
-            apertures: [2.5, 4, 5.6, 8, 11, 16, 22]
-        },
-        "nikon-300mm-f4": {
-            "name": "nikon-300mm-f4",
-            apertures: [4, 5.6, 8, 11, 16, 22, 32]
-        }
-    };
-
-    $scope.lens = { current : 0 };
-
     $scope.getApertures = function() {
-        var lens = $scope.lenses[$scope.exposure.lens];
-        return lens.apertures;
+        return Roll.getCurrentLens().apertures;
     };
 
     $scope.getApertureAtIndex = function(index) {
-        var lens = $scope.lenses[$scope.exposure.lens];
-        return lens.apertures[index];
+        return Roll.getCurrentLens().apertures[index];
     };
 
     $scope.setAperture = function(index) {
@@ -68,9 +51,8 @@ angular.module('starter.controllers', [])
         $scope.exposure["shutter-speed"] = $scope.getShutterSpeedAtIndex(index);
     };
 
-    $scope.capture = function(exposure) {
-        $scope.exposures.push(angular.copy(exposure));
-    };
-
-    $scope.exposure.lens = Object.keys($scope.lenses)[0];
+    $scope.updateSettings = function() {
+        $scope.setAperture(0);
+        $scope.setShutterSpeed(0);
+    }
 });

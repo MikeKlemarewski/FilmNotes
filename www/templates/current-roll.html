@@ -1,0 +1,16 @@
+<ion-view view-title="Current Roll">
+    <ion-content>
+        <div class="list">
+            <h2>{{ camera.name }} - {{ film.name }}</h2>
+            <div ng-repeat="exposure in exposures">
+                <a class="item item-thumbnail-left" href="#">
+                  <img src="cover.jpg">
+                  <h2>{{ exposure.title }}</h2>
+                  <p>lens: {{ exposure.lens }}</p>
+                  <p>aperture: {{ exposure.aperture }}</p>
+                  <p>shutter-speed: {{ exposure["shutter-speed"] }}</p>
+                </a>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

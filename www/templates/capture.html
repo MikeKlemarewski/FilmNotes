@@ -2,21 +2,24 @@
     <ion-content>
         <form name="form" class="simple-form" novalidate>
             <div class="list">
+                <label class="item item-input">
+                    <input type="text"
+                           placeholder="Title"
+                           ng-model="exposure.title"/>
+                </label>
 
                 <label class="item item-input item-select">
                     <div class="input-label">
                         Lens
                     </div>
                     <select ng-model="exposure.lens"
-                            ng-options="k as k for (k, v) in lenses">
+                            ng-options="lens as lens.name for lens in lenses"
+                            ng-change="updateSettings()">
                     </select>
                 </label>
 
-                <!-- Aperture -->
-                <div class="item">
-                    <h2 class="title">Aperture</h2>
-                </div>
                 <div class="item item-input-inset">
+                    <i class="ion-aperture slider-icon"></i>
                     <div class="range">
                         <input type="range"
                                min="0"
@@ -25,17 +28,14 @@
                                ng-model="aperture.index"
                                ng-change="setAperture(aperture.index)"/>
                     </div>
-                    <h1>
+                    <h1 class="slider-display">
                         {{ getApertureAtIndex(aperture.index) }}
                     </h1>
                 </div>
 
-                <!-- Shutter Speed -->
-                <div class="item">
-                    <h2 class="title">Shutter Speed</h2>
-                </div>
                 <div class="item item-input-inset">
-                    <div class="range">
+                    <i class="ion-speedometer slider-icon"></i>
+                    <div class="shutter range">
                         <input type="range"
                                min="0"
                                max="{{ getShutterSpeeds().length - 1 }}"
@@ -43,7 +43,7 @@
                                ng-model="shutter.index"
                                ng-change="setShutterSpeed(shutter.index)"/>
                     </div>
-                    <h1>
+                    <h1 class="slider-display">
                         {{ getShutterSpeedAtIndex(shutter.index) }}
                     </h1>
                 </div>
@@ -52,12 +52,13 @@
             <div class="padding">
                 <button class="button button-block activated"
                          ng-click="capture(exposure)">
-                    Capture!
+                    <i class="icon ion-camera"></i>
+                    Capture
                 </button>
             </div>
         </form>
 
-        <pre>exposure = {{exposure | json}}</pre>
-        <pre>exposures = {{exposures | json}}</pre>
+<!--         <pre>exposure = {{exposure | json}}</pre>
+        <pre>exposures = {{exposures | json}}</pre> -->
     </ion-content>
 </ion-view>
