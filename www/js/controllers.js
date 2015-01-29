@@ -14,7 +14,6 @@ angular.module('starter.controllers', [])
     $scope.camera = Gear.getCamera();
     $scope.exposures = Roll.getExposures();
     $scope.film = Roll.getFilm();
-    debugger;
 })
 
 .controller('Exposures', function($scope, Gear, Roll) {
