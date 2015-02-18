@@ -35,9 +35,21 @@ angular.module('starter', ['ionic', 'starter.controllers', 'services'])
       controller: 'Exposures'
     })
 
+    .state('edit', {
+        url: '/edit/:id',
+        templateUrl: 'templates/edit.html',
+        controller: 'ExposureEdit'
+    })
+
     .state('currentRoll', {
       url: '/current-roll',
       templateUrl: 'templates/current-roll.html',
       controller: 'CurrentRoll'
     })
+})
+
+.directive('exposureFields', function() {
+    return {
+        templateUrl: 'templates/partials/exposure-fields.html'
+    }
 });

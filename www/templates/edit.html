@@ -1,0 +1,16 @@
+<ion-view view-title="Edit">
+    <ion-content>
+        <div>{{ exposure.number }}</div>
+        <form name="form" class="simple-form" novalidate>
+            <div exposure-fields></div>
+            <div class="padding">
+                <button class="button button-block activated"
+                         ng-click="save(exposure)">
+                    <i class="icon ion-camera"></i>
+                    Save
+                </button>
+            </div>
+        </form>
+
+    </ion-content>
+</ion-view>

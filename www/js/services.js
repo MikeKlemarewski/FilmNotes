@@ -39,6 +39,14 @@ angular.module('services', [])
         },
         getLens: function(index) {
             return lenses[index];
+        },
+        getLensWithName: function(name) {
+            for(var i = 0; i < lenses.length; i++) {
+                if (lenses[i]['name'] == name){
+                    return lenses[i];
+                }
+            }
+            return undefined;
         }
     };
 })
@@ -83,16 +91,26 @@ angular.module('services', [])
         getExposures: function() {
             return exposures;
         },
+        getExposure: function(index) {
+            return exposures[index];
+        },
         captureExposure: function(exposure) {
             var tmpExposure = angular.copy(exposure);
 
             tmpExposure.lens = exposure.lens.name;
             if (!tmpExposure.title) {
-
                 tmpExposure.title = getDateAsString();
             }
+            tmpExposure.number = exposures.length;
             exposures.push(tmpExposure);
             resetCurrentExposure();
+        },
+        saveExposure: function(exposure) {
+            exposure.lens = exposure.lens.name;
+            if (!exposure.title) {
+                exposure.title = getDateAsString();
+            }
+            exposures[exposure.number] = exposure;
         },
         getCurrentLens: function() {
             return currentExposure.lens;
@@ -105,4 +123,3 @@ angular.module('services', [])
         }
     };
 });
-
