@@ -1,0 +1,1 @@
+On the edit page, changing lenses doesn't update aperture slider
