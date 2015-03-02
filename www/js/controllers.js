@@ -55,10 +55,13 @@ angular.module('starter.controllers', [])
     }
 })
 
-.controller('CurrentRoll', function($scope, Gear, Roll) {
+.controller('CurrentRoll', function($scope, Gear, Roll, Backend) {
     $scope.camera = Gear.getCamera();
-    $scope.exposures = Roll.getExposures();
     $scope.film = Roll.getFilm();
+
+    Backend.child('exposures').on('value', function(data) {
+        $scope.exposures = data.val() || [];
+    });
 })
 
 .controller('Exposures', function($scope, Gear, Roll) {

@@ -70,7 +70,6 @@ angular.module('services', [])
 
     var exposures;
     Backend.child('exposures').on('value', function(data) {
-        debugger;
         exposures = data.val() || [];
     });
 
