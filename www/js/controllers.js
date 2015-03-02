@@ -11,14 +11,16 @@ angular.module('starter.controllers', [])
 })
 
 .controller('Login', function($scope, Backend) {
+    var backend = Backend.getBackend();
+
     $scope.user = {};
 
-    if (Backend.getAuth()) {
+    if (backend.getAuth()) {
         window.location.href = "#/";
     }
 
     $scope.doLogin = function() {
-        Backend.authWithPassword({
+        backend.authWithPassword({
                 email : $scope.user.email,
                 password : $scope.user.password
             }, function(error, authData) {
@@ -33,12 +35,14 @@ angular.module('starter.controllers', [])
 })
 
 .controller('Signup', function($scope, Backend) {
+    var backend = Backend.getBackend();
+
     $scope.user = {};
 
     $scope.doSignUp = function() {
         if ($scope.user.password === $scope.user.password2) {
 
-            Backend.createUser({
+            backend.createUser({
                     email : $scope.user.email,
                     password : $scope.user.password
                 }, function(error, userData) {
@@ -56,22 +60,41 @@ angular.module('starter.controllers', [])
 })
 
 .controller('CurrentRoll', function($scope, Gear, Roll, Backend) {
+    var backend = Backend.getBackend();
+
     $scope.camera = Gear.getCamera();
     $scope.film = Roll.getFilm();
 
-    Backend.child('exposures').on('value', function(data) {
+    backend.child('exposures').on('value', function(data) {
         $scope.exposures = data.val() || [];
     });
 })
 
-.controller('Exposures', function($scope, Gear, Roll) {
+.controller('Exposures', function($scope, $ionicPlatform, $cordovaCamera, Gear, Roll) {
     $scope.camera = Gear.getCamera();
     $scope.lenses = Gear.getLenses();
-    $scope.capture = Roll.captureExposure;
     $scope.exposure = Roll.getCurrentExposure();
 
     $scope.aperture = { index: 0 };
     $scope.shutter = { index: 0 };
+
+    $scope.capture = function() {
+        $ionicPlatform.ready(function() {
+
+            var options = {
+                quality: 75,
+                popoverOptions: CameraPopoverOptions,
+                saveToPhotoAlbum: false
+            };
+
+            $cordovaCamera.getPicture(options).then(function(imagePath) {
+                $scope.exposure.imagePath = imagePath;
+                Roll.captureExposure($scope.exposure);
+              }, function(err) {
+                // error
+            });
+        });
+    }
 
     $scope.getApertures = function() {
         return Roll.getCurrentLens().apertures;

@@ -1,14 +1,18 @@
 angular.module('services', [])
 
 .factory('Backend', function() {
-    var ref = new Firebase("https://amber-fire-6768.firebaseio.com/");
+    return {
+        getBackend: function() {
+            var ref = new Firebase("https://amber-fire-6768.firebaseio.com/");
 
-    var authData = ref.getAuth();
-    if (authData) {
-        ref = ref.child('/users/' + authData.uid);
+            var authData = ref.getAuth();
+            if (authData) {
+                ref = ref.child('/users/' + authData.uid);
+            }
+
+            return ref;
+        }
     }
-
-    return ref;
 })
 
 .factory('Gear', function() {
@@ -63,13 +67,15 @@ angular.module('services', [])
 })
 
 .factory('Roll', function(Gear, Backend) {
+    var backend = Backend.getBackend();
+
     var film = {
         name: "TRI-X 400",
         exposures: 36
     };
 
     var exposures;
-    Backend.child('exposures').on('value', function(data) {
+    backend.child('exposures').on('value', function(data) {
         exposures = data.val() || [];
     });
 
@@ -110,14 +116,14 @@ angular.module('services', [])
         },
         captureExposure: function(exposure) {
             var tmpExposure = angular.copy(exposure);
-            debugger;
+
             tmpExposure.lens = exposure.lens.name;
             if (!tmpExposure.title) {
                 tmpExposure.title = getDateAsString();
             }
             tmpExposure.number = exposures.length;
             exposures.push(tmpExposure);
-            Backend.child('exposures').set(angular.copy(exposures));
+            backend.child('exposures').set(angular.copy(exposures));
             resetCurrentExposure();
         },
         saveExposure: function(exposure) {
