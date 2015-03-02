@@ -10,6 +10,51 @@ angular.module('starter.controllers', [])
     };
 })
 
+.controller('Login', function($scope, Backend) {
+    $scope.user = {};
+
+    if (Backend.getAuth()) {
+        window.location.href = "#/";
+    }
+
+    $scope.doLogin = function() {
+        Backend.authWithPassword({
+                email : $scope.user.email,
+                password : $scope.user.password
+            }, function(error, authData) {
+                if (error) {
+                    console.log("Login Failed!", error);
+                } else {
+                    window.location.href = "#/";
+                }
+            }
+        );
+    }
+})
+
+.controller('Signup', function($scope, Backend) {
+    $scope.user = {};
+
+    $scope.doSignUp = function() {
+        if ($scope.user.password === $scope.user.password2) {
+
+            Backend.createUser({
+                    email : $scope.user.email,
+                    password : $scope.user.password
+                }, function(error, userData) {
+                    if (error) {
+                        console.log("Error creating user:", error);
+                    } else {
+                        window.location.href = "#/";
+                    }
+                }
+            );
+        } else {
+            alert("Passwords must match.");
+        }
+    }
+})
+
 .controller('CurrentRoll', function($scope, Gear, Roll) {
     $scope.camera = Gear.getCamera();
     $scope.exposures = Roll.getExposures();

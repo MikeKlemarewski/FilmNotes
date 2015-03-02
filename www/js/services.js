@@ -1,5 +1,16 @@
 angular.module('services', [])
 
+.factory('Backend', function() {
+    var ref = new Firebase("https://amber-fire-6768.firebaseio.com/");
+
+    var authData = ref.getAuth();
+    if (authData) {
+        ref = ref.child('/users/' + authData.uid);
+    }
+
+    return ref;
+})
+
 .factory('Gear', function() {
     var camera = {
         "name": "Nikon FE",
@@ -51,13 +62,17 @@ angular.module('services', [])
     };
 })
 
-.factory('Roll', function(Gear) {
+.factory('Roll', function(Gear, Backend) {
     var film = {
         name: "TRI-X 400",
         exposures: 36
     };
 
-    var exposures = [];
+    var exposures;
+    Backend.child('exposures').on('value', function(data) {
+        debugger;
+        exposures = data.val() || [];
+    });
 
     var currentExposure = {
         "lens": Gear.getLens(0),
@@ -96,13 +111,14 @@ angular.module('services', [])
         },
         captureExposure: function(exposure) {
             var tmpExposure = angular.copy(exposure);
-
+            debugger;
             tmpExposure.lens = exposure.lens.name;
             if (!tmpExposure.title) {
                 tmpExposure.title = getDateAsString();
             }
             tmpExposure.number = exposures.length;
             exposures.push(tmpExposure);
+            Backend.child('exposures').set(angular.copy(exposures));
             resetCurrentExposure();
         },
         saveExposure: function(exposure) {

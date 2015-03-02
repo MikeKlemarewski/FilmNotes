@@ -1,0 +1,25 @@
+<ion-view view-title="Current Roll">
+    <ion-content>
+        <div class="list">
+            <label class="item item-input">
+                <input type="email"
+                       placeholder="email"
+                       ng-model="user.email"/>
+            </label>
+            <label class="item item-input">
+                <input type="password"
+                       placeholder="password"
+                       ng-model="user.password"/>
+            </label>
+            <label class="item item-input">
+                <input type="password"
+                       placeholder="confirm password"
+                       ng-model="user.password2"/>
+            </label>
+            <button class="button button-block activated"
+                    ng-click="doSignUp()">
+                Create Account
+            </button>
+        </div>
+    </ion-content>
+</ion-view>
