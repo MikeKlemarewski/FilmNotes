@@ -67,17 +67,13 @@ angular.module('services', [])
 })
 
 .factory('Roll', function(Gear, Backend) {
+    var exposures;
     var backend = Backend.getBackend();
 
     var film = {
         name: "TRI-X 400",
         exposures: 36
     };
-
-    var exposures;
-    backend.child('exposures').on('value', function(data) {
-        exposures = data.val() || [];
-    });
 
     var currentExposure = {
         "lens": Gear.getLens(0),
@@ -104,15 +100,31 @@ angular.module('services', [])
         delete currentExposure.title;
     };
 
+    var getExposures = function(callback) {
+        if (!exposures) {
+            backend.child('exposures').on('value', function(data) {
+                exposures = data.val() || [];
+                callback(exposures);
+            });
+        } else {
+            callback(exposures);
+        }
+    };
+
     return {
         getFilm: function() {
             return film;
         },
-        getExposures: function() {
-            return exposures;
-        },
-        getExposure: function(index) {
-            return exposures[index];
+        getExposures: getExposures,
+        getExposure: function(index, callback) {
+            debugger;
+            if (!exposures) {
+                getExposures(function(exposures) {
+                    callback(exposures[index]);
+                });
+            } else {
+                callback(exposures[index]);
+            }
         },
         captureExposure: function(exposure) {
             var tmpExposure = angular.copy(exposure);
@@ -122,6 +134,7 @@ angular.module('services', [])
                 tmpExposure.title = getDateAsString();
             }
             tmpExposure.number = exposures.length;
+            debugger;
             exposures.push(tmpExposure);
             backend.child('exposures').set(angular.copy(exposures));
             resetCurrentExposure();

@@ -11,10 +11,14 @@
                        placeholder="password"
                        ng-model="user.password"/>
             </label>
-            <a href="#/signup">Sign Up</a>
             <button class="button button-block activated"
                     ng-click="doLogin()">
                 Login
+            </button>
+
+            <button class="button button-block button-outline button-stable"
+                    ng-click="goToSignup()">
+                Sign Up
             </button>
         </div>
     </ion-content>

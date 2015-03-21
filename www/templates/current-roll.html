@@ -3,7 +3,7 @@
         <div class="list">
             <h2>{{ camera.name }} - {{ film.name }}</h2>
             <div ng-repeat="exposure in exposures">
-                <a class="item item-thumbnail-left" href="#/edit/{{ exposure.number }}">
+                <a class="item item-thumbnail-left" href="#/tab/edit/{{ exposure.number }}">
                   <img src="{{ exposure.imagePath }}">
                   <h2>{{ exposure.title }}</h2>
                   <p>lens: {{ exposure.lens }}</p>

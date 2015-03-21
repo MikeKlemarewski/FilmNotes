@@ -1,22 +1,37 @@
-angular.module('starter.controllers', [])
+angular.module('filmApp.controllers', [])
 
-.controller('Main', function($scope) {
+.controller('Main', function($scope, $state, Backend) {
+    var backend = Backend.getBackend();
+
+    // Redirect to login if unauthenticated
+    if (!backend.getAuth()) {
+        $state.go('login');
+    }
+
+    $scope.logout = function() {
+        backend.unauth();
+        $state.go('login');
+    }
+
     $scope.goToCapturePage = function() {
-        window.location.href += 'capture';
-    };
-
-    $scope.goToCurrentRollPage = function() {
-        window.location.href += 'current-roll';
+        $state.go('tabs.capture');
     };
 })
 
-.controller('Login', function($scope, Backend) {
+.controller('Login', function($scope, $state, Backend) {
+    $scope.user = {};
     var backend = Backend.getBackend();
 
-    $scope.user = {};
+    if (window.location.hash === '#/logout') {
+        backend.unauth();
+    }
 
     if (backend.getAuth()) {
-        window.location.href = "#/";
+        $state.go('tabs.main');
+    }
+
+    $scope.goToSignup = function() {
+        $state.go('signup');
     }
 
     $scope.doLogin = function() {
@@ -27,7 +42,7 @@ angular.module('starter.controllers', [])
                 if (error) {
                     console.log("Login Failed!", error);
                 } else {
-                    window.location.href = "#/";
+                    $state.go('tabs.main');
                 }
             }
         );
@@ -64,13 +79,14 @@ angular.module('starter.controllers', [])
 
     $scope.camera = Gear.getCamera();
     $scope.film = Roll.getFilm();
+    $scope.exposures = [];
 
-    backend.child('exposures').on('value', function(data) {
-        $scope.exposures = data.val() || [];
+    Roll.getExposures(function(exposures) {
+        $scope.exposures = angular.copy(exposures).reverse();
     });
 })
 
-.controller('Exposures', function($scope, $ionicPlatform, $cordovaCamera, Gear, Roll) {
+.controller('Capture', function($scope, $state, $ionicPlatform, $cordovaCamera, Gear, Roll) {
     $scope.camera = Gear.getCamera();
     $scope.lenses = Gear.getLenses();
     $scope.exposure = Roll.getCurrentExposure();
@@ -81,18 +97,25 @@ angular.module('starter.controllers', [])
     $scope.capture = function() {
         $ionicPlatform.ready(function() {
 
-            var options = {
-                quality: 75,
-                popoverOptions: CameraPopoverOptions,
-                saveToPhotoAlbum: false
-            };
+            try {
 
-            $cordovaCamera.getPicture(options).then(function(imagePath) {
-                $scope.exposure.imagePath = imagePath;
+                var options = {
+                    quality: 75,
+                    popoverOptions: CameraPopoverOptions,
+                    saveToPhotoAlbum: false
+                };
+
+                $cordovaCamera.getPicture(options).then(function(imagePath) {
+                    $scope.exposure.imagePath = imagePath;
+                    Roll.captureExposure($scope.exposure);
+                    $state.go('tabs.currentRoll');
+                  }, function(err) {
+                    // error
+                });
+            } catch(e) {
                 Roll.captureExposure($scope.exposure);
-              }, function(err) {
-                // error
-            });
+                $state.go('tabs.currentRoll');
+            }
         });
     }
 
@@ -126,21 +149,24 @@ angular.module('starter.controllers', [])
     }
 })
 
-.controller('ExposureEdit', function($scope, $stateParams, Gear, Roll) {
+.controller('ExposureEdit', function($scope, $state, $stateParams, Gear, Roll) {
     $scope.camera = Gear.getCamera();
     $scope.lenses = Gear.getLenses();
+
     $scope.save = function(exposure) {
         Roll.saveExposure(exposure);
-        window.location.href = '#/current-roll';
+        $state.go('tabs.currentRoll');
     }
-    $scope.exposure = angular.copy(Roll.getExposure($stateParams.id));
 
-    $scope.exposure.lens = Gear.getLensWithName($scope.exposure.lens);
+    Roll.getExposure($stateParams.id, function(exposure) {
+        $scope.exposure = angular.copy(exposure);
+        $scope.exposure.lens = Gear.getLensWithName($scope.exposure.lens);
 
-    var currentApertureIndex = $scope.exposure.lens.apertures.indexOf($scope.exposure.aperture);
-    var currentShutterIndex = $scope.camera['shutter-speeds'].indexOf($scope.exposure['shutter-speed']);
-    $scope.aperture = { index: currentApertureIndex };
-    $scope.shutter = { index: currentShutterIndex };
+        var currentApertureIndex = $scope.exposure.lens.apertures.indexOf($scope.exposure.aperture);
+        var currentShutterIndex = $scope.camera['shutter-speeds'].indexOf($scope.exposure['shutter-speed']);
+        $scope.aperture = { index: currentApertureIndex };
+        $scope.shutter = { index: currentShutterIndex };
+    });
 
     $scope.getApertures = function() {
         return Roll.getCurrentLens().apertures;
