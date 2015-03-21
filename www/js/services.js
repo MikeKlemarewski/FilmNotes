@@ -1,3 +1,18 @@
+var getDateAsString = function() {
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth();
+    var day = date.getDate();
+
+    if(month < 10) {
+        month = '0' + (month + 1);
+    }
+    if(day < 10) {
+        day = '0' + day;
+    }
+    return year + '-' + month + '-' + day;
+};
+
 angular.module('services', [])
 
 .factory('Backend', function() {
@@ -66,6 +81,29 @@ angular.module('services', [])
     };
 })
 
+.factory('Rolls', function(Gear, Backend) {
+    var backend = Backend.getBackend();
+
+    var rolls;
+
+    var getRolls = function(callback) {
+        backend.child('rolls').on('value', function(data) {
+            rolls = data.val() || [];
+            callback(rolls);
+        });
+    }
+
+    var addNewRoll = function(roll) {
+        roll.startDate = getDateAsString;
+        rolls.push(roll);
+    }
+
+    return {
+        getRolls: getRolls,
+        addNewRoll: addNewRoll
+    }
+})
+
 .factory('Roll', function(Gear, Backend) {
     var exposures;
     var backend = Backend.getBackend();
@@ -79,21 +117,6 @@ angular.module('services', [])
         "lens": Gear.getLens(0),
         "aperture": Gear.getLens(0).apertures[0],
         "shutter-speed": Gear.getCamera()["shutter-speeds"][0]
-    };
-
-    var getDateAsString = function() {
-        var date = new Date();
-        var year = date.getFullYear();
-        var month = date.getMonth();
-        var day = date.getDate();
-
-        if(month < 10) {
-            month = '0' + (month + 1);
-        }
-        if(day < 10) {
-            day = '0' + day;
-        }
-        return year + '-' + month + '-' + day;
     };
 
     var resetCurrentExposure = function() {
@@ -134,7 +157,7 @@ angular.module('services', [])
                 tmpExposure.title = getDateAsString();
             }
             tmpExposure.number = exposures.length;
-            debugger;
+
             exposures.push(tmpExposure);
             backend.child('exposures').set(angular.copy(exposures));
             resetCurrentExposure();
@@ -145,6 +168,7 @@ angular.module('services', [])
                 exposure.title = getDateAsString();
             }
             exposures[exposure.number] = exposure;
+            backend.child('exposures').set(angular.copy(exposures));
         },
         getCurrentLens: function() {
             return currentExposure.lens;
