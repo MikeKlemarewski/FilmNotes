@@ -87,30 +87,64 @@ angular.module('services', [])
     var rolls;
 
     var getRolls = function(callback) {
-        backend.child('rolls').on('value', function(data) {
-            rolls = data.val() || [];
+        if (!rolls) {
+            backend.child('rolls').once('value', function(data) {
+                rolls = data.val() || [];
+                callback(rolls);
+            });
+        } else {
             callback(rolls);
+        }
+    };
+
+    var getRoll = function(index, callback) {
+        getRolls(function(rolls) {
+            callback(rolls[index]);
         });
-    }
+    };
+
+    var saveRoll = function(roll) {
+        roll.startDate = getDateAsString();
+        roll.number = rolls.length;
+        rolls.push(roll);
+        backend.child('rolls').set(angular.copy(rolls));
+    };
 
     var addNewRoll = function(roll) {
-        roll.startDate = getDateAsString;
-        rolls.push(roll);
-    }
+        if (!rolls) {
+            getRolls(function(rolls) {
+                rolls = rolls || [];
+                saveRoll(roll);
+            });
+        } else {
+            saveRoll(roll);
+        }
+    };
 
     return {
         getRolls: getRolls,
+        getRoll: getRoll,
         addNewRoll: addNewRoll
     }
 })
 
-.factory('Roll', function(Gear, Backend) {
-    var exposures;
+.factory('Roll', function(Backend, Gear, Rolls, $state) {
     var backend = Backend.getBackend();
+    var exposures = [];
+    var exposure;
+    var roll;
 
-    var film = {
-        name: "TRI-X 400",
-        exposures: 36
+    var getRoll =  function(index, callback) {
+        if (!roll) {
+            Rolls.getRoll(index, function(_roll) {
+                roll = _roll;
+                exposures = roll.exposures || [];
+                callback(roll);
+            });
+        } else {
+            exposures = roll.exposures || [];
+            callback(roll);
+        }
     };
 
     var currentExposure = {
@@ -123,44 +157,33 @@ angular.module('services', [])
         delete currentExposure.title;
     };
 
-    var getExposures = function(callback) {
-        if (!exposures) {
-            backend.child('exposures').on('value', function(data) {
-                exposures = data.val() || [];
-                callback(exposures);
-            });
-        } else {
-            callback(exposures);
-        }
-    };
-
     return {
+        getRoll: getRoll,
         getFilm: function() {
-            return film;
+            return roll.film;
         },
-        getExposures: getExposures,
         getExposure: function(index, callback) {
-            debugger;
-            if (!exposures) {
-                getExposures(function(exposures) {
-                    callback(exposures[index]);
-                });
-            } else {
-                callback(exposures[index]);
-            }
+            return exposures[index];
         },
-        captureExposure: function(exposure) {
-            var tmpExposure = angular.copy(exposure);
+        captureExposure: function(rollId, exposure) {
+            getRoll(rollId, function(roll) {
+                var tmpExposure = angular.copy(exposure);
 
-            tmpExposure.lens = exposure.lens.name;
-            if (!tmpExposure.title) {
-                tmpExposure.title = getDateAsString();
-            }
-            tmpExposure.number = exposures.length;
+                tmpExposure.lens = exposure.lens.name;
+                if (!tmpExposure.title) {
+                    tmpExposure.title = getDateAsString();
+                }
 
-            exposures.push(tmpExposure);
-            backend.child('exposures').set(angular.copy(exposures));
-            resetCurrentExposure();
+                exposures = roll.exposures = roll.exposures || [];
+                tmpExposure.number = exposures.length;
+
+                roll.exposures.push(tmpExposure);
+                backend.child('rolls').child(rollId.toString()).once('value', function(data) {
+                    backend.child('rolls').child(rollId.toString()).set(angular.copy(roll));
+                    resetCurrentExposure();
+                    $state.go('tabs.roll', {id:rollId});
+                });
+            });
         },
         saveExposure: function(exposure) {
             exposure.lens = exposure.lens.name;

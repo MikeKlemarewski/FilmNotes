@@ -1,6 +1,6 @@
 angular.module('filmApp.controllers', [])
 
-.controller('Main', function($scope, $state, Backend) {
+.controller('Rolls', function($scope, $state, Rolls, Backend) {
     var backend = Backend.getBackend();
 
     // Redirect to login if unauthenticated
@@ -13,8 +13,17 @@ angular.module('filmApp.controllers', [])
         $state.go('login');
     }
 
-    $scope.goToCapturePage = function() {
-        $state.go('tabs.capture');
+    Rolls.getRolls(function(rolls) {
+        $scope.rolls = rolls;
+    })
+})
+
+.controller('NewRoll', function($scope, $state, Rolls) {
+    $scope.roll = {};
+
+    $scope.addNewRoll = function(roll) {
+        Rolls.addNewRoll(roll);
+        $state.go('tabs.rolls');
     };
 })
 
@@ -27,7 +36,7 @@ angular.module('filmApp.controllers', [])
     }
 
     if (backend.getAuth()) {
-        $state.go('tabs.main');
+        $state.go('tabs.rolls');
     }
 
     $scope.goToSignup = function() {
@@ -42,7 +51,7 @@ angular.module('filmApp.controllers', [])
                 if (error) {
                     console.log("Login Failed!", error);
                 } else {
-                    $state.go('tabs.main');
+                    $state.go('tabs.rolls');
                 }
             }
         );
@@ -74,19 +83,20 @@ angular.module('filmApp.controllers', [])
     }
 })
 
-.controller('CurrentRoll', function($scope, Gear, Roll, Backend) {
-    var backend = Backend.getBackend();
-
-    $scope.camera = Gear.getCamera();
-    $scope.film = Roll.getFilm();
-    $scope.exposures = [];
-
-    Roll.getExposures(function(exposures) {
-        $scope.exposures = angular.copy(exposures).reverse();
+.controller('Roll', function($scope, $stateParams, Rolls) {
+    Rolls.getRoll($stateParams.id, function(roll) {
+        $scope.roll = angular.copy(roll);
+        $scope.exposures = angular.copy(roll.exposures || []).reverse();
     });
+
+    $scope.capture = function() {
+        window.location.href += '/capture';
+    }
 })
 
-.controller('Capture', function($scope, $state, $ionicPlatform, $cordovaCamera, Gear, Roll) {
+.controller('Capture', function($scope, $stateParams, $state, $ionicPlatform, $cordovaCamera, Gear, Roll) {
+    var rollId = $stateParams.id;
+
     $scope.camera = Gear.getCamera();
     $scope.lenses = Gear.getLenses();
     $scope.exposure = Roll.getCurrentExposure();
@@ -98,7 +108,6 @@ angular.module('filmApp.controllers', [])
         $ionicPlatform.ready(function() {
 
             try {
-
                 var options = {
                     quality: 75,
                     popoverOptions: CameraPopoverOptions,
@@ -107,14 +116,14 @@ angular.module('filmApp.controllers', [])
 
                 $cordovaCamera.getPicture(options).then(function(imagePath) {
                     $scope.exposure.imagePath = imagePath;
-                    Roll.captureExposure($scope.exposure);
+                    Roll.captureExposure(rollId, $scope.exposure);
                     $state.go('tabs.currentRoll');
                   }, function(err) {
                     // error
                 });
             } catch(e) {
-                Roll.captureExposure($scope.exposure);
-                $state.go('tabs.currentRoll');
+                Roll.captureExposure(rollId, $scope.exposure);
+                $state.go('tabs.roll', {id:rollId});
             }
         });
     }

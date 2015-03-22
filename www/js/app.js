@@ -54,30 +54,40 @@ angular.module('filmApp',
         templateUrl: 'templates/partials/tabs.html'
     })
 
-    .state('tabs.main', {
-        url: '/main',
+    .state('tabs.rolls', {
+        url: '/rolls',
         views: {
-            'main-tab': {
-                templateUrl: 'templates/main.html',
-                controller: 'Main'
+            'rolls-tab': {
+                templateUrl: 'templates/rolls.html',
+                controller: 'Rolls'
             }
         }
     })
 
-    .state('tabs.currentRoll', {
-        url: '/current-roll',
+    .state('tabs.newRoll', {
+        url: '/roll/new',
         views: {
-            'film-tab': {
-                templateUrl: 'templates/current-roll.html',
-                controller: 'CurrentRoll'
+            'rolls-tab': {
+                templateUrl: 'templates/new-roll.html',
+                controller: 'NewRoll'
+            }
+        }
+    })
+
+    .state('tabs.roll', {
+        url: '/roll/:id',
+        views: {
+            'rolls-tab': {
+                templateUrl: 'templates/roll.html',
+                controller: 'Roll'
             }
         }
     })
 
     .state('tabs.capture', {
-        url: '/capture',
+        url: '/roll/:id/capture',
         views: {
-            'film-tab': {
+            'rolls-tab': {
                 templateUrl: 'templates/capture.html',
                 controller: 'Capture'
             }

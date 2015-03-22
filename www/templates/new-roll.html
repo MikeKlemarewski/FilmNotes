@@ -1,0 +1,20 @@
+<ion-view view-title="New Roll">
+    <ion-content>
+        <div class="list">
+            <label class="item item-input">
+                <input type="text"
+                       placeholder="Film"
+                       ng-model="roll.film"/>
+            </label>
+            <label class="item item-input">
+                <input type="text"
+                       placeholder="camera"
+                       ng-model="roll.camera"/>
+            </label>
+            <button class="button button-block activated"
+                    ng-click="addNewRoll(roll)">
+                Create Roll
+            </button>
+        </div>
+    </ion-content>
+</ion-view>
